@@ -1,0 +1,32 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.header-container {
+  margin-bottom: 2rem;
+}
+
+.filter-table {
+  padding: 2rem;
+}
+.selectors {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+select {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: center;
+}
