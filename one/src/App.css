@@ -1,0 +1,60 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 15rem;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.red-circle,
+.blue-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  border: black 2px solid;
+}
+
+.red-circle {
+  background-color: red;
+}
+
+.blue-circle {
+  background-color: blue;
+}
+
+.red-square,
+.blue-square {
+  width: 100px;
+  height: 100px;
+  border: black 2px solid;
+  position: relative;
+}
+
+.red-square {
+  background-color: red;
+}
+
+.blue-square {
+  background-color: blue;
+}
+
+.red-square .red-circle,
+.blue-square .blue-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
