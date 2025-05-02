@@ -13,7 +13,7 @@
 
 ## Second exercise
 #### Dependencies + starting the dev server:
-- `cd one`
+- `cd two`
 - `npm i`
 - `npm run dev`
 
