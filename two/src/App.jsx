@@ -3,9 +3,8 @@ import './App.css'
 
 export default function App() {
   const [data, setData] = useState([])
-  const [originalOptions, setOriginalOptions] = useState({ A: [], B: [], C: [] })
   const [filters, setFilters] = useState({ A: '', B: '', C: '' })
-  const [lastChanged, setLastChanged] = useState(null)
+  const [explicit, setExplicit] = useState({ A: false, B: false, C: false })
 
   useEffect(() => {
     fetch('/testData.txt')
@@ -17,13 +16,6 @@ export default function App() {
         })
         
         setData(parsed)
-
-        const full = ['A', 'B', 'C'].reduce((o, key) => {
-          o[key] = Array.from(new Set(parsed.map(r => r[key])))
-          return o
-        }, {})
-
-        setOriginalOptions(full)
       })
   }, [])
 
@@ -36,52 +28,64 @@ export default function App() {
 
   const order = ['A', 'B', 'C']
 
-  const dynamicOptions = order.reduce((o, key) => {
-    if (
-      lastChanged === null ||
-      order.indexOf(key) <= order.indexOf(lastChanged)
-    ) {
-      o[key] = originalOptions[key] || []
-    } else {
-      o[key] = Array.from(new Set(filteredRows.map(r => r[key])))
-    }
-
+  const dynamicOptions = order.reduce((o, key, idx) => {
+    const subset = data.filter(row =>
+      order.slice(0, idx).every(
+        k => !explicit[k] || !filters[k] || row[k] === filters[k]
+      )
+    )
+    o[key] = Array.from(new Set(subset.map(r => r[key])))
+    
     return o
   }, {})
 
+  const recomputeOptions = f =>
+    order.reduce((o, k) => {
+      o[k] = Array.from(new Set(data.filter(r =>
+        (!f.A || r.A === f.A) &&
+        (!f.B || r.B === f.B) &&
+        (!f.C || r.C === f.C)
+      ).map(r => r[k])))
+      return o
+    }, {})
+
   const handleSelect = e => {
-    const key = e.target.id.slice(-1)
+    const key = e.target.id
     const value = e.target.value
 
     if (value === '') {
       setFilters({ A: '', B: '', C: '' })
-      setLastChanged(null)
+      setExplicit({ A: false, B: false, C: false })
       return
     }
 
     const nextFilters = { ...filters, [key]: value }
-    const remaining = data.filter(
-      ({ A, B, C }) =>
-        (!nextFilters.A || A === nextFilters.A) &&
-        (!nextFilters.B || B === nextFilters.B) &&
-        (!nextFilters.C || C === nextFilters.C)
-    )
+    const nextExplicit = { ...explicit, [key]: true }
 
-    const newOptions = order.reduce((o, k) => {
-      o[k] = Array.from(new Set(remaining.map(r => r[k])))
-      return o
-    }, {})
+    let newOptions = recomputeOptions(nextFilters)
 
-    order
-      .filter(k => k !== key)
-      .forEach(k => {
-        if (!nextFilters[k] && newOptions[k].length === 1) {
-          nextFilters[k] = newOptions[k][0]
-        }
-      })
+    order.forEach(k => {
+      if (
+        k !== key &&
+        nextFilters[k] &&
+        !newOptions[k].includes(nextFilters[k])
+      ) {
+        nextFilters[k] = ''
+        nextExplicit[k] = false
+      }
+    })
+
+    newOptions = recomputeOptions(nextFilters)
+
+    order.forEach(k => {
+      if (!nextFilters[k] && newOptions[k].length === 1) {
+        nextFilters[k] = newOptions[k][0]
+        nextExplicit[k] = false
+      }
+    })
 
     setFilters(nextFilters)
-    setLastChanged(key)
+    setExplicit(nextExplicit)
   }
 
   return (

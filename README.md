@@ -18,10 +18,12 @@
 - `npm run dev`
 
 #### Solution
-- The `useEffect` hook fetches and parses the testData.txt (file placed in the `public/` directory). It builds and stores the full set of original options.
-- `filteredRows` takes every row stored in `data` and keeps it only if it matches all non-empty filters.
-- `dynamicOptions` makes sure that: if it is the first render or that dropdown comes at or before the one last clicked on, the dropdown shows all possible options. If it comes after the last-changed dropdown, it will only show the values still present in `filteredRows`. It uses an order array (A -> B -> C) to decide which selects are staying full and which ones get filtered.
-- `handleSelect` applies the user's pick, resets all options if "Toate" is clicked, auto-selects the options if there's only one possible remaining, and remembers which dropdown the user used. It updates the `lastChanged` state so that `dynamicOptions` knows which dropdown to keep unfiltered.
+- `filters` state holds the current selected values.
+- `explicit` state marks which fields the user chose. It is `true` if the user picked that column manually, `false` if it was autocompleted or is still empty. A column is autocompleted only when its `explicit` flag is `false`.
+- The `useEffect` hook fetches and parses the testData.txt (file placed in the `public/` directory). It stores the resulting rows in `data`.
+- `filteredRows` keeps each row only if it matches every non-empty value in `filters`.
+- `dynamicOptions` shows for each dropdown: all distinct values if that field or any field to its left hasn’t been explicitly chosen, otherwise only the distinct values remaining inside filteredRows. This is achieved by ignoring any implicit filters when the dropdown is to the left of the last explicit choice.  It uses an order array (A -> B -> C) to decide which selects are staying full and which ones get filtered.
+- `handleSelect` updates the clicked field in filters and marks it `explicit`. Recomputes the rows still valid. Clears values that became invalid. Autocompletes any still empty field that now has a single valid value.
 
 ## Third exercise
 #### Solution
